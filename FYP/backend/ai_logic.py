@@ -9,7 +9,16 @@ from langchain.chains import create_retrieval_chain
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from dotenv import load_dotenv
 import os
-
+"""
+To run this script, make sure you have install the following packages using pip:
+- langchain
+- langchain-groq
+- langchain-community
+- pypdf 
+- fastembed 
+- chroma
+Additionally, store ur grog API key in the .env file 
+"""
 load_dotenv()
 
 #Initialise llm

@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
-from dotenv import load_dotenv
 from ai_logic import process_query, process_pdf_query
 
-#load_dotenv()
+"""
+To use this code, you need to run the ai_logic,py script then run this script. 
+After it's run, you can use the postman app to send Post requests to the server.
+"""
 app = Flask(__name__)
 
 
