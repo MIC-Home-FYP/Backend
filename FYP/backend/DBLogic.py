@@ -20,6 +20,34 @@ class DBLogic:
         for x in cursor:
             print(x)
 
-# TODO: to be removed later after testing is completed
+    """
+    Inserts signup data into the database.
+    Username should not exceed 100 characters and password should be hashed into binary beforehand
+    and converted to hexadecimal in string form to be inserted into the database.
+    """
+    def insert_signup_info(self, username, pwhash):
+        cursor = self.db.cursor()
+        sql = "INSERT INTO patient_id (name, pw_hash) VALUES (%s, %s)"
+        val = (username, pwhash)
+        cursor.execute(sql, val)
+
+        self.db.commit()
+
+    """
+    Retrieves password from the db with the input of a given username, 
+    checking of validity to be left to the parent logic.
+    input: username in string form.
+    returns: password hash as a string.
+    """
+    def get_login_pwhash(self, username):
+        cursor = self.db.cursor()
+        sql = "SELECT pw_hash FROM patient_id WHERE name = %s"
+        val = (username,)
+        cursor.execute(sql, val)
+        result = cursor.fetchone() # fetch only 1 record
+        return result[0]
+
+# below commands for testing, uncomment to use
 mydb = DBLogic()
-mydb.show_all_dbs()
+# mydb.insert_signup_info("Amy", "Amelia")
+print(mydb.get_login_pwhash("Amy"))

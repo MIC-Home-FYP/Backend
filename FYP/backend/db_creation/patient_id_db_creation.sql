@@ -10,8 +10,8 @@ USE patients;
 # create patient login table
 CREATE TABLE patient_id(
     id INT unsigned NOT NULL AUTO_INCREMENT, 
-    name VARCHAR(100) NOT NULL, 
-    pw_hash VARBINARY(256) NOT NULL, 
+    name VARCHAR(100) NOT NULL UNIQUE, 
+    pw_hash VARCHAR(64) NOT NULL, 
     PRIMARY KEY(id)
 );
 
