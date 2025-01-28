@@ -48,6 +48,6 @@ class DBLogic:
         return result[0]
 
 # below commands for testing, uncomment to use
-mydb = DBLogic()
+# mydb = DBLogic()
 # mydb.insert_signup_info("Amy", "Amelia")
-print(mydb.get_login_pwhash("Amy"))
+# print(mydb.get_login_pwhash("Amy"))
