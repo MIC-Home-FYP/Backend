@@ -1,0 +1,14 @@
+primary_agent:
+  llm: Llama3-8b-8192
+  llm_temperature: 0.0
+
+Jaundice_rag:
+  unstructured_docs: "backend/docs/Jaundice"
+  vectordb: "backend/vectordb/Jaundice_db"
+  collection_name: rag-Jaundice
+  llm: Llama3-8b-8192
+  llm_temperature: 0.0
+  embedding_model: FastEmbedEmbeddings
+  chunk_size: 500
+  chunk_overlap: 100
+  k: 2
