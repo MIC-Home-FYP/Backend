@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from ai_logic import process_query, process_pdf_query
+from DBLogic import DBLogic
 
 """
 To use this code, you need to run the ai_logic,py script then run this script. 
@@ -7,6 +8,7 @@ After it's run, you can use the postman app to send Post requests to the server.
 """
 app = Flask(__name__)
 
+dbLogic = DBLogic()
 
 @app.route('/ai', methods=["POST"])
 def aiPost():
@@ -26,6 +28,27 @@ def askPDFPost():
     print(f"query: {query}")
     response_answer = process_pdf_query(query)
     return jsonify(response_answer)
+
+@app.route('/signup', methods = ["POST"])
+def signup():
+    json_content = request.json
+    username = json_content.get("username")
+    pw_hash = json_content.get("pw_hash")
+    dbLogic.insert_signup_info(username, pw_hash)
+    return 100
+
+@app.route('/login', methods = ["POST"])
+def login():
+    json_content = request.json
+    username = json_content.get("username")
+    pw_hash = json_content.get("pw_hash")
+    pw_hash_from_db = dbLogic.get_login_pwhash(username)
+    # TODO implement sending back patient id
+    # TODO (optional) implement session key
+    if pw_hash == pw_hash_from_db:
+        return 100
+    else:
+        return 403
 
 def start_app():
     app.run(port=8000, debug=True)

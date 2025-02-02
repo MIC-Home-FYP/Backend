@@ -27,6 +27,7 @@ class DBLogic:
     """
     def insert_signup_info(self, username, pwhash):
         cursor = self.db.cursor()
+        # TODO account for edge cases, i.e. person alr exists, incompatible data type
         sql = "INSERT INTO patient_id (name, pw_hash) VALUES (%s, %s)"
         val = (username, pwhash)
         cursor.execute(sql, val)
