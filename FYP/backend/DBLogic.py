@@ -7,6 +7,9 @@ class DBLogic:
         load_dotenv()
         MYSQL_USERNAME = os.environ.get("MYSQL_USERNAME")
         MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
+        MYSQL_USERNAME = "root"
+        MYSQL_PASSWORD = "Dolphins35"
+        print(MYSQL_USERNAME, MYSQL_PASSWORD)
         self.db = mysql.connector.connect(
             host = "localhost", 
             user = MYSQL_USERNAME, 

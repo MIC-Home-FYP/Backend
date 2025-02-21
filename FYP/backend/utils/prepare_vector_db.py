@@ -8,6 +8,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 
 """
+TODO including metadata in the vectorDB for each condition
 Run this script to create a VectorDB from a directory containing PDF documents. 
 ** Note: 
     1. Make sure to save the related PDF documents in a specified directory, naming by the different conditions (e.g. Jaundice / UTI etc... ).
@@ -130,12 +131,20 @@ if __name__ == "__main__":
         app_config = yaml.load(cfg, Loader=yaml.FullLoader)
 
     # Uncomment the following configs to run for jaundice document
-    chunk_size = app_config["Jaundice_rag"]["chunk_size"]
-    chunk_overlap = app_config["Jaundice_rag"]["chunk_overlap"]
-    #embedding_model = app_config["Jaundice_rag"]["embedding_model"]
-    vectordb_dir = app_config["Jaundice_rag"]["vectordb"]
-    collection_name = app_config["Jaundice_rag"]["collection_name"]
-    doc_dir = app_config["Jaundice_rag"]["unstructured_docs"]
+    # chunk_size = app_config["Jaundice_rag"]["chunk_size"]
+    # chunk_overlap = app_config["Jaundice_rag"]["chunk_overlap"]
+    # #embedding_model = app_config["Jaundice_rag"]["embedding_model"]
+    # vectordb_dir = app_config["Jaundice_rag"]["vectordb"]
+    # collection_name = app_config["Jaundice_rag"]["collection_name"]
+    # doc_dir = app_config["Jaundice_rag"]["unstructured_docs"]
+
+    #Uncomment the following configs to run for Dengue folder
+    chunk_size = app_config["Dengue_rag"]["chunk_size"]
+    chunk_overlap = app_config["Dengue_rag"]["chunk_overlap"]
+    vectordb_dir = app_config["Dengue_rag"]["vectordb"]
+    collection_name = app_config["Dengue_rag"]["collection_name"]
+    doc_dir = app_config["Dengue_rag"]["unstructured_docs"]
+
 
     prepare_db_instance = PrepareVectorDB(
         doc_dir=doc_dir,

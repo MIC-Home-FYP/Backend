@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from ai_logic import process_query, process_pdf_query
+from Agent.chatbot_backend import ChatBot
 from DBLogic import DBLogic
+import time
 
 """
 To use this code, you need to run the ai_logic,py script then run this script. 
@@ -49,6 +51,19 @@ def login():
         return 100
     else:
         return 403
+    
+#agent system route
+# TODO: Implement patient id and session key
+@app.route('/new', methods=["POST"])
+def handle_new_chat():
+    print("Post /new chat called")
+    json_content = request.json
+    query = json_content.get("query")
+    start=time.process_time()
+    print(f"query: {query}")
+    _,response_answer = ChatBot.respond([],query)
+    print("Response time :",time.process_time()-start)
+    return jsonify(response_answer)
 
 def start_app():
     app.run(port=8000, debug=True)
