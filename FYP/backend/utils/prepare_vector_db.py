@@ -126,7 +126,7 @@ class PrepareVectorDB:
 if __name__ == "__main__":
     load_dotenv()
 
-    with open(here("backend/configs/tools_config.yml")) as cfg:
+    with open(here("FYP/backend/configs/tools_config.yml")) as cfg:
         app_config = yaml.load(cfg, Loader=yaml.FullLoader)
 
     # Uncomment the following configs to run for jaundice document
