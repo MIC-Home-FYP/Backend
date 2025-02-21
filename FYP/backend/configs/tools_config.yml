@@ -12,3 +12,25 @@ Jaundice_rag:
   chunk_size: 500
   chunk_overlap: 100
   k: 2
+
+Dengue_rag:
+  unstructured_docs: "FYP/backend/docs/Dengue"
+  vectordb: "FYP/backend/vectordb/Dengue_db"
+  collection_name: rag-Dengue
+  llm: Llama3-8b-8192
+  llm_temperature: 0.0
+  embedding_model: FastEmbedEmbeddings
+  chunk_size: 500
+  chunk_overlap: 100
+  k: 2
+
+tavily_search_api:
+  tavily_search_max_results: 2
+
+graph_configs:
+  thread_id: 1 # This can be adjusted to assign a unique value for each user session, so it's easier to access data later on.
+
+langsmith:
+  tracing: "true"
+  project_name: "testing"
+  end_point: "https://api.smith.langchain.com"
