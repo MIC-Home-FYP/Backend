@@ -16,3 +16,16 @@ CREATE TABLE patient_id(
 );
 
 DESCRIBE patient_id;
+
+# create chat history table 
+CREATE TABLE chat_history (
+    id INT unsigned NOT NULL AUTO_INCREMENT,
+    user_id INT unsigned NOT NULL,
+    message TEXT NOT NULL,
+    sender ENUM('Human Message', 'AI Message') NOT NULL,
+    timestamp INT unsigned NOT NULL DEFAULT (UNIX_TIMESTAMP()),
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES patient_id(id),
+    INDEX (timestamp)
+);
+DESCRIBE chat_history;

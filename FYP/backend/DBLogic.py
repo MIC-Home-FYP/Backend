@@ -5,8 +5,9 @@ import os
 class DBLogic:
     def __init__(self):
         load_dotenv()
-        MYSQL_USERNAME = os.environ.get("MYSQL_USERNAME")
-        MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
+        MYSQL_USERNAME = os.getenv("MYSQL_USERNAME")
+        MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
+        print(MYSQL_USERNAME)
         self.db = mysql.connector.connect(
             host = "localhost", 
             user = MYSQL_USERNAME, 
@@ -52,3 +53,21 @@ class DBLogic:
 # mydb = DBLogic()
 # mydb.insert_signup_info("Amy", "Amelia")
 # print(mydb.get_login_pwhash("Amy"))
+
+    def insert_chat_interaction(self, user_id, message, sender):
+            cursor = self.db.cursor()
+            sql = "INSERT INTO chat_history (user_id, message, sender) VALUES (%s, %s, %s)"
+            val = (user_id, message, sender)
+            cursor.execute(sql, val)
+            self.db.commit()
+    def get_recent_user_conversations(self, user_id, limit=50):
+            cursor = self.db.cursor()
+            sql = "SELECT * FROM chat_history WHERE user_id = %s ORDER BY timestamp DESC LIMIT %s"
+            cursor.execute(sql, (user_id, limit))
+            return cursor.fetchall()
+
+# below commands for testing, uncomment to use
+#mydb = DBLogic()
+#mydb.insert_chat_interaction(1, "Hello", 'Human Message')
+#mydb.insert_chat_interaction(1, "Hope you're doing well", 'AI Message')
+#mydb.get_recent_user_conversations(1, 50)

@@ -60,9 +60,9 @@ def handle_new_chat():
     query = json_content.get("query")
     start=time.process_time()
     print(f"query: {query}")
-    _,response_answer = ChatBot.respond([],query)
+    response_answer = ChatBot.respond(query)
     print("Response time :",time.process_time()-start)
-    return jsonify({'response' : response_answer[0]})
+    return jsonify({'response' : response_answer})
 
 def start_app():
     app.run(port=8000, debug=True)
