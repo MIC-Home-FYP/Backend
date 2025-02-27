@@ -71,3 +71,23 @@ class DBLogic:
 #mydb.insert_chat_interaction(1, "Hello", 'Human Message')
 #mydb.insert_chat_interaction(1, "Hope you're doing well", 'AI Message')
 #mydb.get_recent_user_conversations(1, 50)
+
+    def insert_patient_record(self,user_id, patient_name, ailment, recommendations, medication, med_timing, vitals, vitals_timing):
+            cursor = self.db.cursor()
+            sql = "INSERT INTO patient_records (user_id, patient_name, ailment, doctor_recommendations, medication, medication_timing, vitals, vitals_timing) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            val = (user_id, patient_name, ailment, recommendations, medication, med_timing, vitals, vitals_timing)
+            cursor.execute(sql, val)
+            self.db.commit()
+
+#test codes below        
+# user_id = 1
+# patient_name = "John Doe"
+# ailment = "Hypertension"
+# recommendations = "Regular exercise and low-sodium diet"
+# medication = "Lisinopril 10mg"
+# med_timing = "twice daily, morning and afternoon at 12pm after meal"
+# vitals = "Record BP and heart rate"
+# vitals_time = "thrice daily, morning, afternoon and night"
+# mydb = DBLogic()
+# mydb.insert_patient_record(user_id, patient_name, ailment, recommendations, medication, med_timing, vitals, vitals_time)
+# mydb.show_all_tables()
