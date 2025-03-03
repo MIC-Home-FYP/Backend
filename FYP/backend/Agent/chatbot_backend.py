@@ -43,8 +43,8 @@ class ChatBot:
         for event in events:
             event["messages"][-1].pretty_print()
             msg = event["messages"]
-            human_msg = str(msg[0].content)
-            ai_msg = str(msg[-1].content)
+            human_msg = str(message)
+            ai_msg = str(msg[-1].content.strip("\n"))
         
         #print(f"printing event:", event)
         #print(f"printing human message:", human_msg)
