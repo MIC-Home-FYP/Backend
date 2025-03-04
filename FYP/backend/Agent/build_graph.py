@@ -15,6 +15,11 @@ load_dotenv()
 os.environ["GROQ_API_KEY"] = os.environ.get('GROQ_API_KEY')
 groq_api_key = os.environ.get('GROQ_API_KEY')
 TOOL_CFG = LoadToolsConfig()
+# Load Procedural Memory Instructions
+with open(here("FYP/backend/procedural_memory.txt")) as fp:
+    current_procedure = fp.read()
+with (open(here("FYP/backend/docs/Careplan/jack.txt"))) as fp1:
+    care_plan = fp1.read()
 
 def build_graph():
     """
@@ -69,16 +74,18 @@ def build_graph():
             """
             You are a nurse assistant chatbot designed to help patients manage their care and improve well-being as they recover from their homes. 
             Your tone should be friendly, supportive, and conversational, as though you are a caring nurse speaking directly to the patient. 
-            You should aim to build trust, offer empathy, and provide clear guidance. Avoid using medical jargon and complex terms.
-            Answer the questions based on the provided context only. 
+            You are first to internalise the care plan of the patient provided below. 
+            Next, follow the instrcution guide for you in current procedure section provided below.
             If you don't know the answer, just say that you don't know and that the question is out of your knowledge. 
             Use three sentences maximum and keep the answer concise.
-            Follow these procedures closly:
+            The search_tool is an internet search tool which can only be accessed by the "look_up" keyword, you are to only use search_tool if the other tools have inadequate information and uses have to state the look_up keyword.
+            Here is the care plan for the patient:
+            {care_plan}
+            Follow these procedures:
             {current_procedure}
             <context>
             {context}
-            </context>
-            
+            </context>            
             """
         ) 
     
@@ -102,7 +109,7 @@ def build_graph():
         #Create a new message with the system prompt
         system_message = {
             "role": "system",
-            "content": system_prompt.format(context=state.get('context', ''), current_procedure=current_procedure) 
+            "content": system_prompt.format(context=state.get('context', ''), current_procedure=current_procedure, care_plan = care_plan) 
         }
 
         #Prepend the new message to the list of existing messages
