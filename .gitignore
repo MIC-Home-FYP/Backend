@@ -1,3 +1,6 @@
 .env
 *.pyc
 __pycache__/
+
+# for firebase service account
+FYP/backend/firebase/service-account.json
