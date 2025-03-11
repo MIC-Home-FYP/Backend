@@ -1,6 +1,7 @@
 from typing import List, Tuple
 from Agent.load_tools_config import LoadToolsConfig
 from Agent.build_graph import build_graph
+from langchain_core.messages import ToolMessage
 from DBLogic import DBLogic
 
 TOOL_CFG = LoadToolsConfig()
@@ -45,12 +46,15 @@ class ChatBot:
             msg = event["messages"]
             human_msg = str(message)
             ai_msg = str(msg[-1].content.strip("\n"))
-        
-        #print(f"printing event:", event)
+            
+            for message in event["messages"]:
+                if isinstance(message, ToolMessage):
+                    print(f"Tool used: {message.name}")
+       
         #print(f"printing human message:", human_msg)
         #print(f"printing ai message:", ai_msg)
-        save_chat.insert_chat_interaction(1, human_msg, 'Human Message')
-        save_chat.insert_chat_interaction(1, ai_msg, 'AI Message')
+        #save_chat.insert_chat_interaction(1, human_msg, 'Human Message')
+        #save_chat.insert_chat_interaction(1, ai_msg, 'AI Message')
         print("saved chat")
 
         return ai_msg

@@ -65,7 +65,7 @@ class LoadToolsConfig:
         self.dengue_rag_k = app_config["Dengue_rag"]["k"]
         self.dengue_rag_chunk_size = app_config["Dengue_rag"]["chunk_size"]
         self.dengue_rag_chunk_overlap = app_config["Dengue_rag"]["chunk_overlap"]
-        self.jdengue_rag_collection_name = app_config["Dengue_rag"]["collection_name"]
+        self.dengue_rag_collection_name = app_config["Dengue_rag"]["collection_name"]
 # Graph configs
 # TODO update configs settings to  chatbot backend
         self.thread_id = str(
