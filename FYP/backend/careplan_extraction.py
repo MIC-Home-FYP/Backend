@@ -2,10 +2,12 @@ from langchain_groq import ChatGroq
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
+from Agent.load_tools_config import LoadToolsConfig
 from dotenv import load_dotenv
 from pyprojroot import here
-import DBLogic
+from DBLogic import DBLogic
 import os
+
 
 load_dotenv()
 os.environ["GROQ_API_KEY"] = os.environ.get('GROQ_API_KEY')
@@ -13,67 +15,103 @@ groq_api_key = os.environ.get('GROQ_API_KEY')
 primary_llm=ChatGroq(groq_api_key=groq_api_key,
              model_name="Llama3-8b-8192")
 embedding = FastEmbedEmbeddings()
-save_careplan = DBLogic.DBLogic()
+TOOL_CFG = LoadToolsConfig()
+save_careplan = DBLogic()
 
-with open(here("FYP/backend/docs/Careplan/jack.txt")) as content:
-    vectordb_content = content.read() 
+with open(here("FYP/backend/docs/Careplan/careplan.txt")) as content:
+    care_plan = content.read() 
 system_prompt = ChatPromptTemplate.from_messages([
     ("system", """
     You are an AI assistant tasked with extracting specific medical information from patient records. 
-    The input will be a vector file containing various details about a patient. 
     Your job is to accurately identify and extract the following information:
 
-    1. Patient Name
-    2. Medical condition
-    3. Doctor's Recommendations
-    4. Medication (including name and dosage if available)
-    5. Medication Timing (frequency or schedule)
-    6. Vitals (any mentioned vital signs to be monitored)
-    7. Vitals Timing (when the vitals should be taken)
-     
     Please format your response as follows:
-    Output valid JSON in exactly this format
+    Output valid JSON in exactly this format:
     {{
-        "patient_name": // Name of the patient
-        "ailment":       // Medical condition
-        "recommendations":  // Doctor's recommendations
-        "medication":        // Medication
-        "med_timing":        // Medication timing
-        "vitals":            // Vitals
-        "vitals_time":     // Vitals timing
-    }}
-    Examples:
-    {{
-    "patient_name": "John Doe",
-    "ailment": "Hypertension",
-    "recommendations": "Regular exercise and low-sodium diet",
-    "medication": "Lisinopril 10mg",
-    "med_timing": "twice daily, morning and afternoon at 12pm after meal",
-    "vitals": "Record BP and heart rate",
-    "vitals_time": "thrice daily, morning, afternoon and night at 8am, 2pm, and 8pm"
+        "medications": [
+            {{
+                "medication_name": "<value>",
+                "dosage": "<value>",
+                "schedule_type_med": "<interval or fixed>",
+                "interval_hours_med": <value>,
+            }},
+            ...
+        ],
+        "vitals": [
+            {{
+                "vital_name": "<value>",
+                "schedule_type_vitals": "<interval or fixed>",
+                "interval_hours_vitals": <value>,
+            }},
+            ...
+        ]
     }}
 
-    If any information is not present in the text, please indicate with "Not mentioned" for that field. 
+    Example: 
+    {{
+        "medications": [
+            {{
+                "medication_name": "Paracetamol, 81mg",
+                "dosage": "2 tablets",
+                "schedule_type_med": "interval",
+                "interval_hours_med": 6
+            }},
+            {{
+                "medication_name": "Aspirin, 500mg",
+                "dosage": "1 tablet",
+                "schedule_type_med": "fixed",
+                "interval_hours_med": ""
+            }}
+        ],
+        "vitals": [
+            {{
+                "vital_name": "Temperature",
+                "schedule_type_vitals": "interval",
+                "interval_hours_vitals": 4
+            }},
+            {{
+                "vital_name": "Blood Pressure",
+                "schedule_type_vitals": "fixed",
+                "interval_hours_vitals": ""
+            }}
+        ]
+    }}
+
+    If any information is not present in the text, please indicate with " " for that field. 
     Be as accurate and concise as possible in your extraction. 
     Do not infer or add information that is not explicitly stated in the text.
+    If short forms are found in the given text convert it to readable text form.  
+    For vitals only, suggest the vitals that is needed specific to monitor the specific condition
     Always output valid JSON, even if some fields are empty or not found.
     Do not include any text outside the JSON object in your response.
-    """),
-    ("human", "Here is the vector file: {vectordb_dir}")
+    {care_plan}
+    """)
 ])
+
 chain = system_prompt | primary_llm | JsonOutputParser()
-extraction = chain.invoke({"vectordb_dir": vectordb_content})
+extraction = chain.invoke({"care_plan": care_plan})
 print(extraction)
 
 # save entities to patient records table in the database
-user_id =1 
-save_careplan.insert_patient_record(
-    user_id, 
-    extraction["patient_name"], 
-    extraction["ailment"], 
-    extraction["recommendations"], 
-    extraction["medication"], 
-    extraction["med_timing"], 
-    extraction["vitals"], 
-    extraction["vitals_time"]
-    )
+user_id =3 
+start_time ='08:00'
+user_id = 1
+# for med in extraction["medications"]:
+#     save_careplan.insert_med_record(
+#         user_id, 
+#         med["medication_name"], 
+#         med["dosage"], 
+#         med["schedule_type_med"], 
+#         med["interval_hours_med"], 
+#         start_time
+#     )
+
+# # Save vitals
+# for vital in extraction["vitals"]:
+#     save_careplan.insert_vitals_record(
+#         user_id, 
+#         vital["vital_name"], 
+#         vital["schedule_type_vitals"], 
+#         vital["interval_hours_vitals"], 
+#         start_time
+#     )
