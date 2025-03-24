@@ -216,3 +216,13 @@ class DBLogic:
 # user_id = 1
 # schedule = mydb.get_daily_schedule(user_id)
 # print(schedule)
+
+    def mark_as_notified(self, user_id, schedule_type, scheduled_time):
+        cursor = self.db.cursor()
+        sql = "UPDATE tracker SET notes = 'notified' WHERE user_id = %s AND schedule_type = %s AND scheduled_time = %s"
+        cursor.execute(sql, (user_id, schedule_type, scheduled_time))
+        self.db.commit()
+        cursor.close()
+# mydb = DBLogic()
+# user_id = 1
+# mydb.mark_as_notified(1, 'vitals', '2025-03-18 08:00:00')

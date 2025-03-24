@@ -18,7 +18,7 @@ embedding = FastEmbedEmbeddings()
 TOOL_CFG = LoadToolsConfig()
 save_careplan = DBLogic()
 
-with open(here("FYP/backend/docs/Careplan/careplan.txt")) as content:
+with open(here("FYP/backend/docs/Careplan/careplan_dengue.txt")) as content:
     care_plan = content.read() 
 system_prompt = ChatPromptTemplate.from_messages([
     ("system", """
@@ -93,9 +93,8 @@ extraction = chain.invoke({"care_plan": care_plan})
 print(extraction)
 
 # save entities to patient records table in the database
-user_id =3 
-start_time ='08:00'
-user_id = 1
+# start_time ='12:00'
+# user_id = 1
 # for med in extraction["medications"]:
 #     save_careplan.insert_med_record(
 #         user_id, 
