@@ -1,9 +1,9 @@
 import requests
 import time
 
-URL = "http://192.168.0.155:8000/new"
+URL = "http://127.0.0.1:8000/new"
 DATA = {"query": "Hello world"}
-NUM_REQUESTS = 10
+NUM_REQUESTS = 3
 
 response_times = []
 
