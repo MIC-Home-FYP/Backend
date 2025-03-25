@@ -1,0 +1,27 @@
+Response Time: 2066.55 ms, Status Code: 500
+Response Time: 2500.80 ms, Status Code: 500
+Response Time: 2771.66 ms, Status Code: 500
+Response Time: 2929.28 ms, Status Code: 500
+Response Time: 3670.56 ms, Status Code: 200
+Response Time: 2771.66 ms, Status Code: 500
+Response Time: 2929.28 ms, Status Code: 500
+Response Time: 3670.56 ms, Status Code: 200
+Response Time: 3718.62 ms, Status Code: 500
+Response Time: 2929.28 ms, Status Code: 500
+Response Time: 3670.56 ms, Status Code: 200
+Response Time: 3718.62 ms, Status Code: 500
+Response Time: 3670.56 ms, Status Code: 200
+Response Time: 3718.62 ms, Status Code: 500
+Response Time: 3718.62 ms, Status Code: 500
+Response Time: 6238.37 ms, Status Code: 500
+Response Time: 6241.19 ms, Status Code: 500
+Response Time: 6238.37 ms, Status Code: 500
+Response Time: 6241.19 ms, Status Code: 500
+Response Time: 6284.34 ms, Status Code: 500
+Response Time: 6241.19 ms, Status Code: 500
+Response Time: 6284.34 ms, Status Code: 500
+Response Time: 6284.34 ms, Status Code: 500
+Response Time: 9290.98 ms, Status Code: 500
+
+Mean Response Time: 4571.23 ms
+Max Response Time: 9290.98 ms

@@ -1,0 +1,13 @@
+Response Time: 39561.55 ms, Status Code: 200
+Response Time: 78280.42 ms, Status Code: 200
+Response Time: 36037.30 ms, Status Code: 200
+Response Time: 84089.88 ms, Status Code: 200
+Response Time: 89295.56 ms, Status Code: 200
+Response Time: 90405.98 ms, Status Code: 200
+Response Time: 94625.36 ms, Status Code: 200
+Response Time: 97598.61 ms, Status Code: 200
+Response Time: 38476.37 ms, Status Code: 200
+Response Time: 29602.59 ms, Status Code: 200
+
+Mean Response Time: 67797.36 ms
+Max Response Time: 97598.61 ms
