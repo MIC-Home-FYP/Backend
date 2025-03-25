@@ -93,3 +93,30 @@ def lookup_dengue(query: str) -> str:
         collection_name=TOOL_CFG.dengue_rag_collection_name)
     docs = rag_tool.vectordb.similarity_search(query, k=rag_tool.k)
     return "\n\n".join([doc.page_content for doc in docs])
+
+class UTIRAGTool:
+    
+    def __init__(self, vectordb_dir: str, k: int, collection_name: str) -> None:
+
+        # Definine embedding function 
+        embedding_function = FastEmbedEmbeddings()
+        self.vectordb_dir = vectordb_dir
+        self.k = k
+        self.vectordb = Chroma(
+            collection_name=collection_name,
+            persist_directory=self.vectordb_dir,
+            embedding_function=embedding_function
+        )
+        print("Number of vectors in vectordb:",
+              self.vectordb._collection.count(), "\n\n")
+
+@tool
+def lookup_uti(query: str) -> str:
+    """Retreive UTI related information. symptoms and treatment of UTI is available here"""
+    rag_tool = UTIRAGTool(
+        #embedding_model=TOOL_CFG.dengue_rag_embedding_model,
+        vectordb_dir=TOOL_CFG.uti_rag_vectordb_directory,
+        k=TOOL_CFG.uti_rag_k,
+        collection_name=TOOL_CFG.uti_rag_collection_name)
+    docs = rag_tool.vectordb.similarity_search(query, k=rag_tool.k)
+    return "\n\n".join([doc.page_content for doc in docs])

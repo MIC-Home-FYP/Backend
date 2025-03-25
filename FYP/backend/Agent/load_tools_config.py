@@ -66,6 +66,18 @@ class LoadToolsConfig:
         self.dengue_rag_chunk_size = app_config["Dengue_rag"]["chunk_size"]
         self.dengue_rag_chunk_overlap = app_config["Dengue_rag"]["chunk_overlap"]
         self.dengue_rag_collection_name = app_config["Dengue_rag"]["collection_name"]
+# UTI RAG configs
+        self.uti_rag_llm = app_config["UTI_rag"]["llm"]
+        self.uti_rag_llm_temperature = float(
+            app_config["UTI_rag"]["llm_temperature"])
+        self.uti_rag_vectordb_directory = str(here(
+            app_config["UTI_rag"]["vectordb"]))  
+        self.uti_rag_unstructured_docs_directory = str(here(
+            app_config["UTI_rag"]["unstructured_docs"]))
+        self.uti_rag_k = app_config["UTI_rag"]["k"]
+        self.uti_rag_chunk_size = app_config["UTI_rag"]["chunk_size"]
+        self.uti_rag_chunk_overlap = app_config["UTI_rag"]["chunk_overlap"]
+        self.uti_rag_collection_name = app_config["UTI_rag"]["collection_name"]
 # Graph configs
 # TODO update configs settings to  chatbot backend
         self.thread_id = str(

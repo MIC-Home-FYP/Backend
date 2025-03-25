@@ -1,7 +1,7 @@
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import StateGraph, START, END
 from langchain_groq import ChatGroq
-from Agent.RAG_tool import lookup_jaundice, lookup_dengue
+from Agent.RAG_tool import lookup_jaundice, lookup_dengue, lookup_uti
 from Agent.load_tools_config import LoadToolsConfig
 from Agent.agent_backend import State, BasicToolNode, route_tools, plot_agent_schema
 from Agent.reminder_subagent import ReminderSubAgent, reminder_tool
@@ -70,6 +70,7 @@ def build_graph():
     tools = [
             lookup_dengue,
             lookup_jaundice, 
+            lookup_uti,
             schedule_tool, 
             ]
     all_tools = [*tools, search_tool]
@@ -139,6 +140,13 @@ def build_graph():
             Preprocesses the state to include a system prompt."""
         state = preprocess_state(state)
         return {"messages": [primary_llm_with_tools.invoke(state["messages"])]}
+    def supervisor_node(state: State):
+        processed_context = state
+        response = primary_llm.invoke([
+            {"role": "system", "content": "You are a supervisor tasked with structuring the final response to be user-friendly, do not change any of the content."},
+            {"role": "human", "content": f"Structure this a user-friendly response:\n{processed_context}"}
+        ])
+        return response
 
     #Add chatbot node to graph
     graph_builder.add_node("chatbot", chatbot)
@@ -147,22 +155,24 @@ def build_graph():
         tools=[
             lookup_dengue,
             lookup_jaundice,
+            lookup_uti,
             schedule_tool
         ])
     search_tool_node = search_tool
     graph_builder.add_node("rag_tools", rag_tools_node)
     graph_builder.add_node("search_tool", search_tool_node)
+    graph_builder.add_node("supervisor", supervisor_node)
     graph_builder.add_conditional_edges(
         "chatbot",
         route_tools,
-        {"rag_tools": "rag_tools", "search_tool": "search_tool", "__end__": "__end__"}
+        {"rag_tools": "rag_tools", "search_tool": "search_tool", "supervisor": "supervisor"}
     )
 
     # Any time a tool is called, we return to the chatbot to decide the next step
     graph_builder.add_edge("rag_tools", "chatbot")
     graph_builder.add_edge("search_tool", "chatbot")
     graph_builder.add_edge(START, "chatbot")
-    graph_builder.add_edge("chatbot", END)
+    graph_builder.add_edge("supervisor", END)
     memory = MemorySaver()
     graph = graph_builder.compile(checkpointer=memory)
     #plot_agent_schema(graph)
