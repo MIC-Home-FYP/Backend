@@ -1,0 +1,87 @@
+Jason Tan Jun Jie
+T0098237A
+25yo/Chinese/M
+NKDA
+Non-smoker, non-drinker
+ 
+Past medical history
+NA
+ 
+Medication history
+NA
+ 
+===Subjective===
+ 
+1.	Fever x5/7
+•	Tmax 38.5ºC
+•	Remits on paracetamol but returns soon after
+ 
+2.	Maculopapular rash x1/7
+•	Bilateral LL up to level of the knee
+ 
+•	a/w rhinorrhea, no cough/sore throat
+•	a/w myalgia
+•	No headache, giddiness
+•	No retro-orbital pain
+•	No abdominal pain
+•	No N/V
+•	No change in bowel habits
+•	No dysuria, hematuria, LUTS
+•	No joint pains
+•	No CP, SOB, palpitations, diaphoresis
+•	No LL swelling
+•	No LOW, LOA
+ 
+•	No sick contacts
+•	No recent travel
+•	No insect bites
+•	Lives in a dengue red zone
+•	Had dengue before in 2018
+ 
+===Objective===
+ 
+Temp 37.2ºC
+HR 87
+RR 18
+BP 138/90 mmHg
+SpO2 96% on room air
+ 
+Input: 2050ml
+Output: 1900ml
+Eating 1/2 shares
+ 
+O/E
+Mucous membranes moist
+H S1S2
+L clear
+A SNT
+Calves supple
+ 
+Non-tender blanchable maculopapular rash up to bilateral knees
+ 
+Investigations
+FBC TW 11 Hb 12 Plt 16
+Na 142 K 3.5
+LFT Total Bil 15 AST 40 ALT 57 ALP 61 GGT 39
+CRP 23
+CXR clear
+Influenza swab -ve
+Blood c/s no growth
+ 
+===Assessment===
+ 
+1.	Dengue
+•	NS1- IgM+ IgG+
+•	Dengue PCR +ve
+•	Plt 100>78>32>16
+ 
+===Plan===
+Q4h vitals
+Strict I/O charting
+To inform if patient c/o abdo pain
+Thrombocytopenic precautions
+ 
+Daily FBC to trend platelets
+KIV off drip if oral intake good
+PO Paracetamol 1g Q6H PRN
+Aim home once platelets start to trend upwards

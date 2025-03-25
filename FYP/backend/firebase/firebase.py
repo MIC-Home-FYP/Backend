@@ -11,13 +11,9 @@ class FirebaseMessenger:
         REGISTRATION_TOKEN = 'enfFQu4GRRa_xaJGyYMFN1:APA91bEJMjCy1bF0Kfv3v4EhEUoA6G6kyNkPirKBZQOH-d1eMMztmQ0ScU6IzZuily8DNC8_-Zl0NG7yA5REggG4LwVks49-HrfWRAAsNWyC_8ALfwUdZiI' # TODO make secret
 
         message = messaging.Message(
-            data = {
-                'score': '850',
-                'time': '2:45',
-            },
             notification = messaging.Notification(
-            title = "Test title",
-            body = "Test body"
+            title = "Take your meds",
+            body = "Take tylenol at 06:00"
             ),
             token = REGISTRATION_TOKEN,
         )

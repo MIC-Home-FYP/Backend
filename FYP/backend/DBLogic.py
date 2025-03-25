@@ -1,5 +1,6 @@
 import mysql.connector
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 import os
 
 class DBLogic:
@@ -72,22 +73,156 @@ class DBLogic:
 #mydb.insert_chat_interaction(1, "Hope you're doing well", 'AI Message')
 #mydb.get_recent_user_conversations(1, 50)
 
-    def insert_patient_record(self,user_id, patient_name, ailment, recommendations, medication, med_timing, vitals, vitals_timing):
-            cursor = self.db.cursor()
-            sql = "INSERT INTO patient_records (user_id, patient_name, ailment, doctor_recommendations, medication, medication_timing, vitals, vitals_timing) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-            val = (user_id, patient_name, ailment, recommendations, medication, med_timing, vitals, vitals_timing)
-            cursor.execute(sql, val)
+    def insert_med_record(self, user_id, medication_name, dosage, schedule_type, interval_hours, start_time):
+        cursor = self.db.cursor()
+        
+        try:
+            # Start a transaction
+            self.db.start_transaction()
+            
+            # Insert into medication_schedule
+            med_sql = """INSERT INTO medication_schedule 
+                        (user_id, name, dosage, schedule_type, interval_hours, start_time) 
+                        VALUES (%s, %s, %s, %s, %s, %s)"""
+            med_val = (user_id, medication_name, dosage, schedule_type, interval_hours, start_time)
+            cursor.execute(med_sql, med_val)
+            
+            # Get the last inserted id (medication_id)
+            medication_id = cursor.lastrowid
+
+            # Calculate the first scheduled time
+            current_date = datetime.now().date()
+            start_datetime = datetime.combine(current_date, datetime.strptime(start_time, '%H:%M').time())
+
+            # Insert into tracker
+            tracker_sql = """INSERT INTO tracker 
+                             (user_id, schedule_type, schedule_id, scheduled_time, status) 
+                             VALUES (%s, %s, %s, %s, %s)"""
+            
+            # Loop to insert multiple tracking entries for 24 hours
+            scheduled_times = []
+            end_datetime = start_datetime + timedelta(hours=24)
+            while start_datetime < end_datetime:
+                tracker_val = (user_id, 'medication', medication_id, start_datetime, 'pending')
+                cursor.execute(tracker_sql, tracker_val)
+                scheduled_times.append(start_datetime.strftime('%H:%M'))
+                
+                # Add interval hours for the next entry
+                start_datetime += timedelta(hours=interval_hours)
+            
+            # Commit the transaction
             self.db.commit()
 
-#test codes below        
+            print(f"Tracking records inserted for times: {scheduled_times}")
+            
+        except mysql.connector.Error as err:
+            # If an error occurs, roll back the transaction
+            self.db.rollback()
+            print(f"An error occurred: {err}")
+            return None
+        
+        finally:
+            cursor.close()
+
 # user_id = 1
-# patient_name = "John Doe"
-# ailment = "Hypertension"
-# recommendations = "Regular exercise and low-sodium diet"
-# medication = "Lisinopril 10mg"
-# med_timing = "twice daily, morning and afternoon at 12pm after meal"
-# vitals = "Record BP and heart rate"
-# vitals_time = "thrice daily, morning, afternoon and night"
+# medication_name = 'Paracetamol'
+# dosage = '81mg'
+# schedule_type = 'interval'
+# interval_hours = 6
+# start_time = '08:00'
 # mydb = DBLogic()
-# mydb.insert_patient_record(user_id, patient_name, ailment, recommendations, medication, med_timing, vitals, vitals_time)
-# mydb.show_all_tables()
+# mydb.insert_med_record(user_id, medication_name, dosage, schedule_type, interval_hours, start_time)
+
+    def insert_vitals_record(self,user_id, vitals, schedule_type, interval_hours, start_time):
+        cursor = self.db.cursor()
+        try:
+            sql = "INSERT INTO vitals_schedule (user_id, name, schedule_type, interval_hours, start_time) VALUES (%s, %s, %s, %s, %s)"
+            val = (user_id, vitals, schedule_type, interval_hours, start_time)
+            cursor.execute(sql, val)
+            # Get the last inserted id (medication_id)
+            vitals_id = cursor.lastrowid
+
+            # Calculate the first scheduled time
+            current_date = datetime.now().date()
+            start_datetime = datetime.combine(current_date, datetime.strptime(start_time, '%H:%M').time())
+
+            # Insert into tracker
+            tracker_sql = """INSERT INTO tracker 
+                             (user_id, schedule_type, schedule_id, scheduled_time, status) 
+                             VALUES (%s, %s, %s, %s, %s)"""
+            
+            # Loop to insert multiple tracking entries for 24 hours
+            scheduled_times = []
+            end_datetime = start_datetime + timedelta(hours=24)
+            while start_datetime < end_datetime:
+                tracker_val = (user_id, 'vitals', vitals_id, start_datetime, 'pending')
+                cursor.execute(tracker_sql, tracker_val)
+                scheduled_times.append(start_datetime.strftime('%H:%M'))
+                
+                # Add interval hours for the next entry
+                start_datetime += timedelta(hours=interval_hours)
+
+            self.db.commit()
+            print(f"Tracking records inserted for times: {scheduled_times}")
+            
+        except mysql.connector.Error as err:
+            # If an error occurs, roll back the transaction
+            self.db.rollback()
+            print(f"An error occurred: {err}")
+            return None
+        
+        finally:
+            cursor.close()
+        
+# user_id = 1
+# vitals = 'Temperature'
+# schedule_type = 'interval'
+# interval_hours = 4
+# start_time = '08:00'
+# mydb = DBLogic()
+# mydb.insert_vitals_record(user_id, vitals, schedule_type, interval_hours, start_time)
+
+# to get the daily schedule for the day 
+    def get_daily_schedule(self, user_id):
+        cursor = self.db.cursor(dictionary=True)
+        sql = """
+        SELECT 
+            t.schedule_type,
+            t.scheduled_time,
+            t.status,
+            CASE 
+                WHEN t.schedule_type = 'medication' THEN ms.name
+                WHEN t.schedule_type = 'vitals' THEN vs.name
+            END AS name,
+            CASE 
+                WHEN t.schedule_type = 'medication' THEN ms.dosage
+            END AS dosage
+        FROM 
+            tracker t
+        LEFT JOIN 
+            medication_schedule ms ON t.schedule_id = ms.id AND t.schedule_type = 'medication'
+        LEFT JOIN 
+            vitals_schedule vs ON t.schedule_id = vs.id AND t.schedule_type = 'vitals'
+        WHERE 
+            t.user_id = %s AND DATE(t.scheduled_time) = CURDATE()
+        ORDER BY 
+            t.scheduled_time
+        """
+        cursor.execute(sql, (user_id,))
+        result = cursor.fetchall()
+        cursor.close()
+        return result
+# mydb = DBLogic()
+# user_id = 1
+# schedule = mydb.get_daily_schedule(user_id)
+# print(schedule)
+
+    def mark_as_notified(self, user_id, schedule_type, scheduled_time):
+        cursor = self.db.cursor()
+        sql = "UPDATE tracker SET notes = 'notified' WHERE user_id = %s AND schedule_type = %s AND scheduled_time = %s"
+        cursor.execute(sql, (user_id, schedule_type, scheduled_time))
+        self.db.commit()
+        cursor.close()
+# mydb = DBLogic()
+# user_id = 1
+# mydb.mark_as_notified(1, 'vitals', '2025-03-18 08:00:00')

@@ -1,9 +1,10 @@
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import StateGraph, START
+from langgraph.graph import StateGraph, START, END
 from langchain_groq import ChatGroq
 from Agent.RAG_tool import lookup_jaundice, lookup_dengue
 from Agent.load_tools_config import LoadToolsConfig
 from Agent.agent_backend import State, BasicToolNode, route_tools, plot_agent_schema
+from Agent.reminder_subagent import ReminderSubAgent, reminder_tool
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
@@ -15,10 +16,13 @@ load_dotenv()
 os.environ["GROQ_API_KEY"] = os.environ.get('GROQ_API_KEY')
 groq_api_key = os.environ.get('GROQ_API_KEY')
 TOOL_CFG = LoadToolsConfig()
+user_id = 1
+reminder_agent = ReminderSubAgent (user_id)
+schedule_tool = reminder_tool(reminder_agent)
 # Load Procedural Memory Instructions
 with open(here("FYP/backend/procedural_memory.txt")) as fp:
     current_procedure = fp.read()
-with (open(here("FYP/backend/docs/Careplan/jack.txt"))) as fp1:
+with (open(here("FYP/backend/docs/Careplan/careplan_dengue.txt"))) as fp1:
     care_plan = fp1.read()
 
 def build_graph():
@@ -65,11 +69,12 @@ def build_graph():
     search_tool = TavilySearchResults(max_results=max_results)
     tools = [
             lookup_dengue,
-            lookup_jaundice,
-            search_tool
+            lookup_jaundice, 
+            schedule_tool, 
             ]
+    all_tools = [*tools, search_tool]
     # Tell the LLM which tools it can call
-    primary_llm_with_tools = primary_llm.bind_tools(tools)
+    primary_llm_with_tools = primary_llm.bind_tools(all_tools)
     system_prompt = ChatPromptTemplate.from_template(
             """
             You are a nurse assistant chatbot designed to help patients manage their care and improve well-being as they recover from their homes.
@@ -81,6 +86,7 @@ def build_graph():
             You are provided with tools relating to the medical condition of the patients, you can use these tools to provide the patient with the necessary information, avoid thanking for any tools used!
             Avoid using your own knowledge to answer questions related to any medical condition.
             The search_tool is an internet search tool which can only be accessed by the "look_up" keyword, you are to only use search_tool if the other tools have inadequate information and users have to grant you permission by providing the "look_up" keyword. avoid thanking for any tools used!
+            You can use the 'schedule_tool' tool to retrieve information about the patient's medication and vital check schedules.
             Avoid thanking for any tools used!
             Here is the care plan for the patient:
             {care_plan}
@@ -137,31 +143,26 @@ def build_graph():
     #Add chatbot node to graph
     graph_builder.add_node("chatbot", chatbot)
     # Define the tool node with the available tools
-    tool_node = BasicToolNode(
+    rag_tools_node = BasicToolNode(
         tools=[
             lookup_dengue,
             lookup_jaundice,
-            search_tool
+            schedule_tool
         ])
-    graph_builder.add_node("tools", tool_node)
-
-
-    # The `tools_condition` function returns "tools" if the chatbot asks to use a tool, and "__end__" if
-    # it is fine directly responding. This conditional routing defines the main agent loop.
+    search_tool_node = search_tool
+    graph_builder.add_node("rag_tools", rag_tools_node)
+    graph_builder.add_node("search_tool", search_tool_node)
     graph_builder.add_conditional_edges(
         "chatbot",
         route_tools,
-        # The following dictionary lets you tell the graph to interpret the condition's outputs as a specific node
-        # It defaults to the identity function, but if you
-        # want to use a node named something else apart from "tools",
-        # You can update the value of the dictionary to something else
-        # e.g., "tools": "my_tools"
-        {"tools": "tools", "__end__": "__end__"}
+        {"rag_tools": "rag_tools", "search_tool": "search_tool", "__end__": "__end__"}
     )
 
     # Any time a tool is called, we return to the chatbot to decide the next step
-    graph_builder.add_edge("tools", "chatbot")
+    graph_builder.add_edge("rag_tools", "chatbot")
+    graph_builder.add_edge("search_tool", "chatbot")
     graph_builder.add_edge(START, "chatbot")
+    graph_builder.add_edge("chatbot", END)
     memory = MemorySaver()
     graph = graph_builder.compile(checkpointer=memory)
     #plot_agent_schema(graph)
