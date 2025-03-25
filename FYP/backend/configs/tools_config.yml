@@ -24,6 +24,17 @@ Dengue_rag:
   chunk_overlap: 100
   k: 2
 
+UTI_rag:
+  unstructured_docs: "FYP/backend/docs/UTI"
+  vectordb: "FYP/backend/vectordb/UTI_db"
+  collection_name: rag-UTI
+  llm: Llama3-8b-8192
+  llm_temperature: 0.0
+  embedding_model: FastEmbedEmbeddings
+  chunk_size: 500
+  chunk_overlap: 100
+  k: 2
+
 tavily_search_api:
   tavily_search_max_results: 2
 

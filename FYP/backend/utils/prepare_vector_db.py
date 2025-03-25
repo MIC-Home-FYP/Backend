@@ -139,11 +139,18 @@ if __name__ == "__main__":
     # doc_dir = app_config["Jaundice_rag"]["unstructured_docs"]
 
     #Uncomment the following configs to run for Dengue folder
-    chunk_size = app_config["Dengue_rag"]["chunk_size"]
-    chunk_overlap = app_config["Dengue_rag"]["chunk_overlap"]
-    vectordb_dir = app_config["Dengue_rag"]["vectordb"]
-    collection_name = app_config["Dengue_rag"]["collection_name"]
-    doc_dir = app_config["Dengue_rag"]["unstructured_docs"]
+    # chunk_size = app_config["Dengue_rag"]["chunk_size"]
+    # chunk_overlap = app_config["Dengue_rag"]["chunk_overlap"]
+    # vectordb_dir = app_config["Dengue_rag"]["vectordb"]
+    # collection_name = app_config["Dengue_rag"]["collection_name"]
+    # doc_dir = app_config["Dengue_rag"]["unstructured_docs"]
+
+    #Uncomment the following configs to run for UTI folder
+    chunk_size = app_config["UTI_rag"]["chunk_size"]
+    chunk_overlap = app_config["UTI_rag"]["chunk_overlap"]
+    vectordb_dir = app_config["UTI_rag"]["vectordb"]
+    collection_name = app_config["UTI_rag"]["collection_name"]
+    doc_dir = app_config["UTI_rag"]["unstructured_docs"]
 
 
     prepare_db_instance = PrepareVectorDB(
