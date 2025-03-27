@@ -3,7 +3,7 @@ from firebase_admin import credentials
 from firebase_admin import messaging
 
 class FirebaseMessenger:
-    cred = credentials.Certificate("FYP/backend/firebase/service-account.json")
+    cred = credentials.Certificate("service-account.json")
     firebaseApp = firebase_admin.initialize_app(cred)
     
 
@@ -15,6 +15,9 @@ class FirebaseMessenger:
             title = "Take your meds",
             body = "Take tylenol at 06:00"
             ),
+            data={
+                'query': 'Ask the patient for their blood pressure',
+            },
             token = REGISTRATION_TOKEN,
         )
 
