@@ -1,11 +1,14 @@
 import json
 from IPython.display import Image, display
+from langchain_core.runnables.graph import MermaidDrawMethod
 from typing import Annotated, Literal
 from typing_extensions import TypedDict
 from langchain_core.messages import ToolMessage
 from langgraph.graph.message import add_messages
+from pyprojroot import here
+from DBLogic import DBLogic
 
-
+db = DBLogic()
 class State(TypedDict):
     """Represents the state structure containing a list of messages.
 
@@ -14,6 +17,24 @@ class State(TypedDict):
         by adding messages using the `add_messages` function.
     """
     messages: Annotated[list, add_messages]
+    context: str
+    user_id: int
+    care_plan: str
+
+def retrieve_context(state: State):
+    """Node to fetch context from MySQL database"""
+    user_id = state.get('user_id')
+    chat_history = db.get_recent_user_conversations(user_id)
+    # Format chat history as context
+    context = "\n".join([f"{row['sender']}: {row['message']} ({row['timestamp']})" for row in chat_history])
+    care_plan_path = f"FYP/backend/docs/Careplan/user_{user_id}.txt"
+    try:
+        with(open(here(care_plan_path, 'r'))) as file:
+            care_plan = file.read().strip()
+    except FileNotFoundError:
+        care_plan = "No care plan found for this user."         
+    return {"context": context, "care_plan": care_plan}
+
 
 
 class BasicToolNode:
@@ -100,7 +121,7 @@ def plot_agent_schema(graph):
         None
     """
     try:
-        display(Image(graph.get_graph().draw_mermaid_png()))
+        display(Image(graph.get_graph().draw_mermaid_png(draw_method=MermaidDrawMethod.API,output_file_path="my_graph_mermaid.png")))
     except Exception:
         # This requires some extra dependencies and is optional
         return print("Graph could not be displayed.")

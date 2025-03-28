@@ -3,7 +3,7 @@ from langgraph.graph import StateGraph, START, END
 from langchain_groq import ChatGroq
 from Agent.RAG_tool import lookup_jaundice, lookup_dengue, lookup_uti
 from Agent.load_tools_config import LoadToolsConfig
-from Agent.agent_backend import State, BasicToolNode, route_tools, plot_agent_schema
+from Agent.agent_backend import State, BasicToolNode, route_tools, plot_agent_schema, retrieve_context
 from Agent.reminder_subagent import ReminderSubAgent, reminder_tool
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.prompts import ChatPromptTemplate
@@ -23,8 +23,8 @@ schedule_tool = reminder_tool(reminder_agent)
 # Load Procedural Memory Instructions
 with open(here("FYP/backend/procedural_memory.txt")) as fp:
     current_procedure = fp.read()
-with (open(here("FYP/backend/docs/Careplan/careplan_dengue.txt"))) as fp1:
-    care_plan = fp1.read()
+# with (open(here("FYP/backend/docs/Careplan/careplan_dengue.txt"))) as fp1:
+#     care_plan = fp1.read()
 
 def build_graph():
     """
@@ -99,7 +99,11 @@ def build_graph():
             - Maintain a caring and supportive tone throughout the interaction.
             - Prioritize patient safety and well-being in all responses. 
             - Do not use medical jargons or complex terms. 
-            - Do not mention specific medical pointers in the care plan to users. maintain confidentiality of the care plan. 
+            - Do not mention specific medical pointers in the care plan to users. maintain confidentiality of the care plan.
+            - Do not include any reference to the care plan, eg “according to the care plan”, as the patient do not have access to it and it remains confidential 
+            - Remember you are the nurse assistant whose purpose is to provide personalized guidance/care to the patient based on their care plan, knowledge base 
+            and the information they share with you. Hence, do not require a healthcare provider to assist. Any issue/query is only escalated to the healthcare provider 
+            when you are not able to answer the question within your knowledge. 
 
             <context>
             {context}
@@ -112,35 +116,30 @@ def build_graph():
         current_procedure = content.read()
 
     def preprocess_state(state: State) -> State:
-        """
-        Preprocesses the state to include a system prompt in the messages.
-
-        Args:
-            state (State): The original state object.
-
-        Returns:
-            State: The modified state with the system prompt prepended.
-        """
-       # Extract existing messages from state
         messages = state.get("messages", [])
+        context = state.get("context", "No context available")  # Default value if context is null
+        care_plan = state.get("care_plan", "No care plan available")
         
-        #Create a new message with the system prompt
         system_message = {
             "role": "system",
-            "content": system_prompt.format(context=state.get('context', ''), current_procedure=current_procedure, care_plan = care_plan) 
+            "content": system_prompt.format(
+                context=context,
+                current_procedure=current_procedure,
+                care_plan=care_plan
+            )
         }
-
         #Prepend the new message to the list of existing messages
-        updated_messages = [system_message] + messages
+        #updated_messages = [system_message] + messages
 
         #Return the modified state
-        return State(messages=updated_messages, context=state.get('context', ''))
+        return State(
+        messages=[system_message] + messages, context=context, care_plan=care_plan)
 
     def chatbot(state: State):
         """Executes the primary language model with tools bound and returns the generated message.
             Preprocesses the state to include a system prompt."""
         state = preprocess_state(state)
-        return {"messages": [primary_llm_with_tools.invoke(state["messages"])]}
+        return {"messages": [primary_llm_with_tools.invoke(state.get("messages"))]}
     def supervisor_node(state: State):
         processed_context = state
         response = primary_llm.invoke([
@@ -148,9 +147,7 @@ def build_graph():
             {"role": "human", "content": f"Structure this a user-friendly response:\n{processed_context}"}
         ])
         return response
-
-    #Add chatbot node to graph
-    graph_builder.add_node("chatbot", chatbot)
+    
     # Define the tool node with the available tools
     rag_tools_node = BasicToolNode(
         tools=[
@@ -160,9 +157,15 @@ def build_graph():
             schedule_tool
         ])
     search_tool_node = search_tool
+    # nodes 
+    graph_builder.add_node("retrieve_context", retrieve_context)
+    graph_builder.add_node("chatbot", chatbot)
     graph_builder.add_node("rag_tools", rag_tools_node)
     graph_builder.add_node("search_tool", search_tool_node)
     graph_builder.add_node("supervisor", supervisor_node)
+    #entry point and edges
+    graph_builder.set_entry_point("retrieve_context")
+    graph_builder.add_edge("retrieve_context", "chatbot")
     graph_builder.add_conditional_edges(
         "chatbot",
         route_tools,
@@ -172,7 +175,7 @@ def build_graph():
     # Any time a tool is called, we return to the chatbot to decide the next step
     graph_builder.add_edge("rag_tools", "chatbot")
     graph_builder.add_edge("search_tool", "chatbot")
-    graph_builder.add_edge(START, "chatbot")
+    #graph_builder.add_edge(START, "chatbot")
     graph_builder.add_edge("supervisor", END)
     memory = MemorySaver()
     graph = graph_builder.compile(checkpointer=memory)

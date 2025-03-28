@@ -26,7 +26,7 @@ Dengue_rag:
 
 UTI_rag:
   unstructured_docs: "FYP/backend/docs/UTI"
-  vectordb: "FYP/backend/vectordb/UTI_db"
+  vectordb: "FYP/backend/vectordb/Uti_db"
   collection_name: rag-UTI
   llm: Llama3-8b-8192
   llm_temperature: 0.0

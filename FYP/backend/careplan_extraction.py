@@ -18,7 +18,8 @@ embedding = FastEmbedEmbeddings()
 TOOL_CFG = LoadToolsConfig()
 save_careplan = DBLogic()
 
-with open(here("FYP/backend/docs/Careplan/careplan_dengue.txt")) as content:
+#with open(here("FYP/backend/docs/Careplan/user_1.txt")) as content: #user 1, dengue care plan
+with open(here("FYP/backend/docs/Careplan/user_2.txt")) as content:
     care_plan = content.read() 
 system_prompt = ChatPromptTemplate.from_messages([
     ("system", """
@@ -60,7 +61,7 @@ system_prompt = ChatPromptTemplate.from_messages([
                 "medication_name": "Aspirin, 500mg",
                 "dosage": "1 tablet",
                 "schedule_type_med": "fixed",
-                "interval_hours_med": ""
+                "interval_hours_med": 6
             }}
         ],
         "vitals": [
@@ -72,12 +73,12 @@ system_prompt = ChatPromptTemplate.from_messages([
             {{
                 "vital_name": "Blood Pressure",
                 "schedule_type_vitals": "fixed",
-                "interval_hours_vitals": ""
+                "interval_hours_vitals": 6
             }}
         ]
     }}
 
-    If any information is not present in the text, please indicate with " " for that field. 
+    If any information is not present in the text, please indicate a suitable time frame for that field, do not leave the field empty. 
     Be as accurate and concise as possible in your extraction. 
     Do not infer or add information that is not explicitly stated in the text.
     If short forms are found in the given text convert it to readable text form.  
@@ -94,7 +95,7 @@ print(extraction)
 
 # save entities to patient records table in the database
 # start_time ='12:00'
-# user_id = 1
+# user_id = 2
 # for med in extraction["medications"]:
 #     save_careplan.insert_med_record(
 #         user_id, 

@@ -24,7 +24,7 @@ class ChatBot:
             and writes the chat history to a file.
     """
     @staticmethod
-    def respond( message: str) -> Tuple:
+    def respond( message: str, user_id: int):
         """
         Processes a user message using the agent graph, generates a response, and appends it to the chat history.
         The chat history is also saved to a memory file for future reference.
@@ -36,25 +36,28 @@ class ChatBot:
         Returns:
             Tuple: Returns an empty string (representing the new user input placeholder) and the updated conversation history.
         """
-        
+        initial_state = {
+            "messages": [("user", message)],
+            "user_id": user_id  # Add user_id to the initial state
+        }
         # The config is the **second positional argument** to stream() or invoke()!
-        events = graph.stream(
-            {"messages": [("user", message)]}, config, stream_mode="values"
-        )
+        events = graph.stream(initial_state, config, stream_mode="values")
+
         for event in events:
             event["messages"][-1].pretty_print()
             msg = event["messages"]
             human_msg = str(message)
             ai_msg = str(msg[-1].content.strip("\n"))
             
-            for message in event["messages"]:
+            for message in event["messages"][-1]:
                 if isinstance(message, ToolMessage):
                     print(f"Tool used: {message.name}")
        
         #print(f"printing human message:", human_msg)
         #print(f"printing ai message:", ai_msg)
-        #save_chat.insert_chat_interaction(1, human_msg, 'Human Message')
-        #save_chat.insert_chat_interaction(1, ai_msg, 'AI Message')
+        save_chat.insert_chat_interaction(user_id, human_msg, 'Human Message')
+        save_chat.insert_chat_interaction(user_id, ai_msg, 'AI Message')
         print("saved chat")
+        # print(f"printing msg:", msg)
 
         return ai_msg
