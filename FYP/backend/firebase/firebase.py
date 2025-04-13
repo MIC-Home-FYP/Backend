@@ -16,7 +16,7 @@ class FirebaseMessenger:
             body = "Take tylenol at 06:00"
             ),
             data={
-                'query': 'Ask the patient for their blood pressure',
+                'query': 'Ask the patient if they have taken their tylenol medication',
             },
             token = REGISTRATION_TOKEN,
         )
